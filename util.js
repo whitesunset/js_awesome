@@ -1,8 +1,6 @@
 /**
  * System functions
  */
-'use strict';
-
 var AwesomeUtil = {
     // detect OS
     detect_os: function () {
