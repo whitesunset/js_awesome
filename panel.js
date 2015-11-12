@@ -177,7 +177,7 @@ var AwesomePanel = function (options) {
     self.html_pool = $(self.html).parent();
 
     self.direction = options.direction || 'left';
-    self.animation = options.animation || 'slide';
+    self.animation = options.animation || 'over';
     self.width = options.width || '100%';
     self.height = options.height || '100%';
 
@@ -256,9 +256,7 @@ var AwesomePanel = function (options) {
             $(self.overlay).addClass('open');
             $(self.overlay).css('position', self.position);
 
-
-            var shift_enabled = true; // todo: get from settings
-            if (shift_enabled) {
+            if (self.animation == 'push') {
                 var scroll_top = $win.scrollTop();
                 var scroll_left = $win.scrollLeft();
                 $parent.children().find('*').each(function (i, el) {
@@ -309,14 +307,12 @@ var AwesomePanel = function (options) {
             $(self.panel).remove();
             delete window[self.id + '_panel'];
 
-            var shift_enabled = true; // todo: get from settings
             var $fixed;
-            if (shift_enabled) {
+            if (self.animation == 'push') {
                 $fixed = $('.at_fixed_inner_el');
                 if (self.animation == 'push') $fixed.each(unshiftFixed);
             }
         }, 500);
-
     };
 
     // Append HTML
