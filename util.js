@@ -97,6 +97,14 @@ var AwesomeUtil = {
         var result = AwesomeUtil.find_key_by_value(key, keys);
 
         return result;
+    },
+
+    removeClass: function (el, start_with) {
+        $(el).removeClass (function (index, css) {
+            var regex = new RegExp('(^|\\s)' + start_with + '\\S+', 'g');
+            console.log(regex);
+            return (css.match (regex) || []).join(' ');
+        });
     }
 };
 
