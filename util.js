@@ -102,7 +102,6 @@ var AwesomeUtil = {
     removeClass: function (el, start_with) {
         $(el).removeClass (function (index, css) {
             var regex = new RegExp('(^|\\s)' + start_with + '\\S+', 'g');
-            console.log(regex);
             return (css.match (regex) || []).join(' ');
         });
     }
