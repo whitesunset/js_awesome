@@ -239,7 +239,6 @@ var AwesomePanel = function (options) {
         self.panel.css('height', self.height);
 
         self.panel.addClass('a-slide-to-' + self.direction);
-
         setTimeout(function () {
             if (self.animation == 'push') {
                 var translate = self.direction == 'left' ? '-' + self.width : self.width;
@@ -269,10 +268,12 @@ var AwesomePanel = function (options) {
                     }
                 });
             }
+
             setTimeout(function () {
                 window[self.id + '_panel_openinig'] = false;
+
                 $parent.addClass('at-overflow-hidden');
-                if ($("body").height() > $(window).height()) {
+                if ($(window).height() < $(document).height()) {
                     $parent.addClass('at-overflow-hidden-' + self.direction);
                 }
             }, 400);
