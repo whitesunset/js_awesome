@@ -122,6 +122,13 @@ String.prototype.endsWith = function(end){
     return this.indexOf(end, this.length - end.length) !== -1;
 };
 
+// Array last item
+if (!Array.prototype.last){
+    Array.prototype.last = function(){
+        return this[this.length - 1];
+    };
+};
+
 var $ = jQuery;
 // check if element visible on screen
 $.fn.isVisible = function (parent) {

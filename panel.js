@@ -176,7 +176,7 @@ var AwesomePanel = function (options) {
     self.spinner = $('<div class="a-slide-panel-spinner a-spinner at-transition"></div>');
 
     self.parent = options.parent || 'body'; // panel parent element
-    self.position = self.parent == 'body' ? 'fixed' : 'absolution';
+    self.position = self.parent == 'body' ? 'fixed' : 'absolute';
     self.html = options.html; // HTML to append
     self.html_pool = $(self.html).parent();
 
@@ -232,6 +232,7 @@ var AwesomePanel = function (options) {
         self.animation_start(); // show loading animation
 
         //create panel
+        window[self.id + '_panel_object'] = self;
         window[self.id + '_panel'] = self.panel;
         $parent.append(self.panel);
 
@@ -262,8 +263,15 @@ var AwesomePanel = function (options) {
             if (self.animation == 'push') {
                 var scroll_top = $win.scrollTop();
                 var scroll_left = $win.scrollLeft();
-                $parent.children().find('*').each(function (i, el) {
-                    if ($(el).closest('.a-slide-panel').length === 0) {
+                if (self.direction == 'left' || self.direction == 'right') {
+                    scroll_left = +scroll_left;
+                }
+                $parent.find('*').each(function (i, el) {
+                    console.log()
+                    if (!$(el).hasClass('a-slide-panel') &&
+                        !$(el).hasClass('a-slide-panel-overlay') &&
+                        !$(el).parent().is($(self.parent)) &&
+                        $(el).closest('.a-slide-panel').length === 0) {
                         shiftFixed(i, el, scroll_top, scroll_left);
                     }
                 });
@@ -282,6 +290,12 @@ var AwesomePanel = function (options) {
 
     // Close Panel
     self.close = function () {
+        if (self.animation == 'push') {
+            var $fixed = $('.at_fixed_inner_el');
+            $fixed.each(function (i, el) {
+                unshiftFixed(i, el);
+            });
+        }
         if (Modernizr.cssanimations) {
             $(self.overlay).remove(); // if IE => just remove overlay
             window[self.id + '_overlayvisible'] = false;
@@ -313,12 +327,6 @@ var AwesomePanel = function (options) {
             self.hide_content();
             $(self.panel).remove();
             delete window[self.id + '_panel'];
-
-            var $fixed;
-            if (self.animation == 'push') {
-                $fixed = $('.at_fixed_inner_el');
-                if (self.animation == 'push') $fixed.each(unshiftFixed);
-            }
         }, 500);
     };
 
@@ -334,12 +342,13 @@ var AwesomePanel = function (options) {
     // Bind Actions to buttons
     self.bindActions = function () {
         $('.close-panel').on('click', function () {
-            self.close();
+            if (window[self.id + '_overlayvisible']) {
+                self.close();
+            }
         });
     };
 
     function shiftFixed(i, el, scrollTop, scrollLeft, bh, wh) {
-
         var $t = $(el);
         var $offsetP;
         var t;
@@ -361,12 +370,12 @@ var AwesomePanel = function (options) {
                 t = $t.css(transProp);
 
                 if (t !== 'none') {
-                    $t.data('ncf-old-matrix', t);
+                    $t.attr('ncf-old-matrix', t);
                     t = _T.fromString(t);
                     nu = t.x(translation); // add translation
-                    $t.css(transProp, _T.toString(nu)).data('ncf-transformed', 1);
+                    $t.css(transProp, _T.toString(nu)).attr('ncf-transformed', 1);
                 } else {
-                    $t.css(transProp, _T.toString(translation)/*, transition: trans + 'transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1)', transitionDelay: '90ms'*/).data('ncf-transformed', 1);
+                    $t.css(transProp, _T.toString(translation)/*, transition: trans + 'transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1)', transitionDelay: '90ms'*/).attr('ncf-transformed', 1);
                 }
 
             } else {
@@ -385,17 +394,18 @@ var AwesomePanel = function (options) {
                 oTop = offset.top;
 
                 if (isFF && $t.is(':visible')) {
-                    $t.hide().data('ncf-ff-hidden', 1);
+                    $t.hide().attr('ncf-ff-hidden', 1);
                 }
 
                 coords = {
                     left: $t.css('left'),
                     right: $t.css('right'),
                     top: $t.css('top'),
-                    bottom: $t.css('bottom')
+                    bottom: $t.css('bottom'),
+                    transition: window.getComputedStyle($t.get(0)).transition
                 }
 
-                if (isFF && $t.data('ncf-ff-hidden')) $t.show();
+                if (isFF && $t.attr('ncf-ff-hidden')) $t.show();
 
                 newCSS = {};
                 _b = parseInt(coords.bottom);
@@ -423,7 +433,8 @@ var AwesomePanel = function (options) {
                 }
 
                 newCSS['transitionProperty'] = 'none';
-                $t.css(newCSS).data('ncf-old-pos', coords)
+                $t.css(newCSS).attr('ncf-old-pos', JSON.stringify(coords))
+                $t.css('tra')
             }
         }
     }
@@ -433,24 +444,30 @@ var AwesomePanel = function (options) {
         var coords;
         var newCss;
         if (isIE) {
-            if ($el.data('ncf-old-matrix')) {
-                $el.css(transProp, $el.data('ncf-old-matrix')).data('ncf-old-matrix', '');
+            if ($el.attr('ncf-old-matrix')) {
+                $el.css(transProp, $el.attr('ncf-old-matrix')).attr('ncf-old-matrix', '');
             } else {
-                $el.css(transProp, defTranslationStr).data('ncf-transformed', '');
+                $el.css(transProp, defTranslationStr).attr('ncf-transformed', '');
             }
         } else {
-            coords = $el.data('ncf-old-pos');
-            newCss = {};
-            if (coords) {
-                newCss[coords.toChangeHor] = coords[coords.toChangeHor];
-                newCss[coords.toChangeVert] = coords[coords.toChangeVert];
-                newCss['transitionProperty'] = '';
-                if (coords.toChangeVert === 'bottom') newCss['top'] = '';
-                $el.css(newCss);
-                $el.data('ncf-old-pos', '');
-            } else {
-                $el.css({left: '', top: '', bottom: '', right: '', 'transitionProperty': ''})
-            }
+            setTimeout(function () {
+                $el.removeClass('at_fixed_inner_el');
+                coords = JSON.parse($el.attr('ncf-old-pos'));
+                newCss = {};
+                if (coords) {
+                    newCss[coords.toChangeHor] = coords[coords.toChangeHor];
+                    newCss[coords.toChangeVert] = coords[coords.toChangeVert];
+                    //newCss['transitionProperty'] = '';
+                    if (coords.toChangeVert === 'bottom') newCss['top'] = '';
+                    $el.css(newCss);
+                    $el.attr('ncf-old-pos', '');
+                } else {
+                    $el.css({left: '', top: '', bottom: '', right: '', 'transitionProperty': ''})
+                }
+            }, 500);
+            setTimeout(function () {
+                $el.css('transition', coords.transition);
+            }, 700);
         }
     }
 
