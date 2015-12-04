@@ -25,6 +25,17 @@ var AwesomeAjax = function(prefix){
         });
     };
 
+    self.publish_model = function (id, callback_success, callback_error) {
+        return self.ajax({
+            action: prefix + 'publish_model',
+            data: {
+                'id': id
+            },
+            success_handler: callback_success,
+            error_handler: callback_error
+        });
+    }
+
     // delete model by ID and model name
     self.delete_model = function(id, model_name){
         return self.ajax({

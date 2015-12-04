@@ -208,18 +208,11 @@ var AwesomePanel = function (options) {
 
     // Open Panel
     self.open = function () {
-
         var $parent = $(self.parent);
 
         window[self.id + '_panel_openinig'] = true;
         window[self.id + '_overlayvisible'] = true;
 
-        // create overlay and bind close action
-        $(self.overlay, $parent).on('click', function () {
-            if (window[self.id + '_overlayvisible']) {
-                self.close();
-            }
-        });
         $parent.append(self.overlay);
         $parent.addClass('a-slide-panel-parent');
 
@@ -290,6 +283,7 @@ var AwesomePanel = function (options) {
 
     // Close Panel
     self.close = function () {
+        $('.close-panel', $(self.parent)).off('click');
         if (self.animation == 'push') {
             var $fixed = $('.at_fixed_inner_el');
             $fixed.each(function (i, el) {
@@ -341,7 +335,14 @@ var AwesomePanel = function (options) {
 
     // Bind Actions to buttons
     self.bindActions = function () {
-        $('.close-panel').on('click', function () {
+        var $parent = $(self.parent);
+
+        $(self.overlay, $parent).on('click', function () {
+            if (window[self.id + '_overlayvisible']) {
+                self.close();
+            }
+        });
+        $('.close-panel', $parent).on('click', function () {
             if (window[self.id + '_overlayvisible']) {
                 self.close();
             }
@@ -444,6 +445,9 @@ var AwesomePanel = function (options) {
         var coords;
         var newCss;
         if (isIE) {
+            setTimeout(function () {
+                $el.removeClass('at_fixed_inner_el');
+            }, 500);
             if ($el.attr('ncf-old-matrix')) {
                 $el.css(transProp, $el.attr('ncf-old-matrix')).attr('ncf-old-matrix', '');
             } else {
