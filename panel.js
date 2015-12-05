@@ -260,7 +260,6 @@ var AwesomePanel = function (options) {
                     scroll_left = +scroll_left;
                 }
                 $parent.find('*').each(function (i, el) {
-                    console.log()
                     if (!$(el).hasClass('a-slide-panel') &&
                         !$(el).hasClass('a-slide-panel-overlay') &&
                         !$(el).parent().is($(self.parent)) &&
