@@ -53,11 +53,11 @@ var AwesomeAjax = function(prefix){
     // WP AJAX wrapper
     self.ajax = function (args) {
         return $.ajax({
-            url: localize.ajaxurl,
+            url: window[prefix + 'localize']['ajaxurl'],
             type: 'post',
             data: {
                 action: args.action,
-                security: localize.ajax_nonce,
+                security: window[prefix + 'localize']['ajax_nonce'],
                 data: args.data || {}
             },
             success: function (data) {
@@ -75,5 +75,4 @@ var AwesomeAjax = function(prefix){
             }
         });
     }
-
 };
