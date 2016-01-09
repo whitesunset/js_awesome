@@ -154,6 +154,7 @@ var AwesomePanel = function (options) {
     self.id = options.id;
     self.item_id = options.item_id; // model item ID passed from page
     self.model_name = options.model_name; // model name passed from page
+    self.content_url = options.content_url; // model name passed from page
     self.overlayvisible = true; // store click on overlay to close panel
 
     // todo: do this calculations and caching once
@@ -177,8 +178,7 @@ var AwesomePanel = function (options) {
 
     self.parent = options.parent || 'body'; // panel parent element
     self.position = self.parent == 'body' ? 'fixed' : 'absolute';
-    self.html = options.html; // HTML to append
-    self.html_pool = $(self.html).parent();
+
 
     self.direction = options.direction || 'left';
     self.animation = options.animation || 'over';
@@ -215,14 +215,6 @@ var AwesomePanel = function (options) {
 
         $parent.append(self.overlay);
         $parent.addClass('a-slide-panel-parent');
-
-        var $html = $(self.html) || self.html; // get panel content as jQuery object
-
-        self.panel.append(self.spinner); // append spinner
-        self.panel.append($html); // append panel content
-
-        self.hide_content(); // hide it temporary (until model is loaded)
-        self.animation_start(); // show loading animation
 
         //create panel
         window[self.id + '_panel_object'] = self;
@@ -324,13 +316,24 @@ var AwesomePanel = function (options) {
     };
 
     // Append HTML
-    self.appendHtml = function () {
+    self.appendHTML = function () {
+        self.html = self.html || options.html; // HTML to append
+        self.html_pool = $(self.html).parent();
+        var $html = $(self.html) || self.html; // get panel content as jQuery object
+        self.panel.append($html); // append panel content
+
+        self.panel.append(self.spinner); // append spinner
+        self.animation_start(); // show loading animation
+        self.hide_content(); // hide it temporary (until model is loaded)
+    };
+
+    self.showHTML = function () {
         self.animation_end(); // hide loading animation
         self.show_content(); // show panel content
         if (typeof self.options.callback_open === 'function') {
             self.options.callback_open();
         }
-    };
+    }
 
     // Bind Actions to buttons
     self.bindActions = function () {
@@ -506,11 +509,25 @@ var AwesomePanel = function (options) {
         self.bindActions(); // bind close button & overlay clicks
         // load backbone model if arg passed
         if (typeof self.options.load_model === 'function') {
+            self.appendHTML();
+
             self.options.load_model(self.item_id, self.model_name).then(function () {
-                self.appendHtml();
+                self.showHTML();
             });
             return;
         }
-        self.appendHtml(); // append panel to DOM
+        if (typeof self.options.load_content === 'object') {
+            self.panel.append(self.spinner); // append spinner
+            self.animation_start(); // show loading animation
+
+            self.options.load_content.then(function (data) {
+                self.html = data;
+                self.appendHTML();
+                self.showHTML();
+            });
+            return;
+        }
+        self.appendHTML(); // append panel to DOM
+        self.showHTML();
     };
 };
