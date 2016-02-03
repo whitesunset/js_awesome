@@ -66,7 +66,7 @@ var AwesomeAjax = function(prefix){
                     var errors =  responseArray.responses[0].errors;
                     args.success_error_handler(errors)
                 }else{
-                    var result = responseArray.responses[0].data;
+                    var result = JSON.parse(responseArray.responses[0].data);
                     args.success_handler(result);
                 }
             },
