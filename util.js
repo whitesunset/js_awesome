@@ -112,6 +112,19 @@ String.prototype.replace_all = function(find, replace){
     return this.replace(new RegExp(find, 'g'), replace);
 };
 
+// startsWith
+if (!String.prototype.startsWith) {
+    Object.defineProperty(String.prototype, 'startsWith', {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: function(searchString, position) {
+            position = position || 0;
+            return this.lastIndexOf(searchString, position) === position;
+        }
+    });
+}
+
 // capitalize
 String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
