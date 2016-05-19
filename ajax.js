@@ -61,17 +61,23 @@ var AwesomeAjax = function(prefix){
                 data: args.data || {}
             },
             success: function (data) {
-                var responseArray = wpAjax.parseAjaxResponse(data);
-                if(responseArray.errors){
-                    var errors =  responseArray.responses[0].errors;
-                    args.success_error_handler(errors)
-                }else{
-                    var result = JSON.parse(responseArray.responses[0].data);
-                    args.success_handler(result);
-                }
+                args.success_handler(data);
+
+                // var responseArray = wpAjax.parseAjaxResponse(data);
+                // if(responseArray.errors){
+                //     var errors =  responseArray.responses[0].errors;
+                //     args.success_error_handler(errors)
+                // }else{
+                //     var result = JSON.parse(responseArray.responses[0].data);
+                //     args.success_handler(result);
+                // }
             },
             error: function (data) {
-                args.error_handler(data);
+                if(typeof args.error_handler === 'function'){
+                    args.error_handler(data);
+                }else{
+                    console.log(data);
+                }
             }
         });
     }
