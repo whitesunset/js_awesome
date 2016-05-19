@@ -61,16 +61,11 @@ var AwesomeAjax = function(prefix){
                 data: args.data || {}
             },
             success: function (data) {
-                args.success_handler(data);
-
-                // var responseArray = wpAjax.parseAjaxResponse(data);
-                // if(responseArray.errors){
-                //     var errors =  responseArray.responses[0].errors;
-                //     args.success_error_handler(errors)
-                // }else{
-                //     var result = JSON.parse(responseArray.responses[0].data);
-                //     args.success_handler(result);
-                // }
+                if(data.errors){
+                     args.success_error_handler(data.errors)
+                }else{
+                     args.success_handler(data);
+                }
             },
             error: function (data) {
                 if(typeof args.error_handler === 'function'){
